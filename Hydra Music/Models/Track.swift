@@ -13,22 +13,24 @@ enum RepeatMode: String, Codable {
     case none
     case one
     case all
-    
-    mutating func toggle(){
+
+    mutating func toggle() {
         switch self {
-            case .none: self = .all
-            case .none: self = .one
-            case .none: self = .none
+        case .none: self = .all
+        case .none: self = .one
+        case .none: self = .none
         }
     }
+
     var iconName: String {
-        switch self{
-            case .none: return "repeat"
-            case .one:  return "repeat.1"
-            case .all:  return "repeat"
+        switch self {
+        case .none: return "repeat"
+        case .one: return "repeat.1"
+        case .all: return "repeat"
         }
     }
 }
+
 struct Track {
     var id: UUID
     var filaName: String
@@ -38,8 +40,8 @@ struct Track {
     var atworkPAth: String?
     var bookmarData: Data?
     var dateAdded: Date
-    
-    init (
+
+    init(
         id: UUID = UUID(),
         fileName: String,
         title: String,
@@ -48,7 +50,7 @@ struct Track {
         artworkPath: String? = nil,
         bookmarkData: Data? = nil,
         dateAdded: Date = Date()
-    ){
+    ) {
         self.id = id
         self.fileName = fileName
         self.title = title
@@ -59,46 +61,50 @@ struct Track {
         self.dateAdded = dateAdded
     }
 }
+
 extension Track: Identifiable {}
 
 extension Track: Codable {}
 
 extension Track: FetchableRecord {
     init(row: Row) throws {
-            id           = row["id"]
-            fileName     = row["fileName"]
-            title        = row["title"]
-            artist       = row["artist"]
-            duration     = row["duration"]
-            artworkPath  = row["artworkPath"]
-            bookmarkData = row["bookmarkData"]
-            dateAdded    = row["dateAdded"]
-        }
-}
-extension Track: PersistableRecord {
-    static var databaseTableName: String = { "tracks" }
-    
-    func encode(to container: inout PersistenseContainer) throws {
-            container["id"]           = id.uuidString
-            container["fileName"]     = fileName
-            container["title"]        = title
-            container["artist"]       = artist
-            container["duration"]     = duration
-            container["artworkPath"]  = artworkPath
-            container["bookmarkData"] = bookmarkData
-            container["dateAdded"]    = dateAdded
+        id = row["id"]
+        fileName = row["fileName"]
+        title = row["title"]
+        artist = row["artist"]
+        duration = row["duration"]
+        artworkPath = row["artworkPath"]
+        bookmarkData = row["bookmarkData"]
+        dateAdded = row["dateAdded"]
     }
 }
+
+extension Track: PersistableRecord {
+    static var databaseTableName: String = { "tracks" }
+
+    func encode(to container: inout PersistenseContainer) throws {
+        container["id"] = id.uuidString
+        container["fileName"] = fileName
+        container["title"] = title
+        container["artist"] = artist
+        container["duration"] = duration
+        container["artworkPath"] = artworkPath
+        container["bookmarkData"] = bookmarkData
+        container["dateAdded"] = dateAdded
+    }
+}
+
 extension Track {
     var formattedDuration: String {
         let minutes = Int(duration) / 60
         let seconds = Int(duration) % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
-    
+
     var fileURL: URL? {
         guard let documentsURL = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask).first else {
+            .urls(for: .documentDirectory, in: .userDomainMask).first
+        else {
             return nil
         }
         return documentsURL
@@ -106,22 +112,22 @@ extension Track {
             .appendingPathComponent(fileName)
     }
 }
+
 extension Track {
     func toDictionary(artwork: UIImage? = nil) -> [String: Any] {
         var info: [String: Any] = [
-            MPMediaItemPropertyTitle:            title,
-            MPMediaItemPropertyArtist:           artist,
+            MPMediaItemPropertyTitle: title,
+            MPMediaItemPropertyArtist: artist,
             MPMediaItemPropertyPlaybackDuration: duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: 0,
             MPNowPlayingInfoPropertyPlaybackRate: 1.0,
         ]
-        
+
         if let image = artwork {
-            
             let artworkItem = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
             info[MPMediaItemPropertyArtwork] = artworkItem
         }
-        
+
         return info
     }
 }
